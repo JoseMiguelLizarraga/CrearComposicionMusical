@@ -1,0 +1,373 @@
+
+<div [style.display]="operacion == 'listar' ? 'block' : 'none'">  <!-- Opcion de inicio --> 
+
+	<br/> 
+	<button (click)="operacion = 'crear'; crearNuevo()" class="btn btn-success"> <span>+</span> Agregar nueva Composición Musical </button> 
+	<!-- <button (click)="operacion = 'usarExcel';" class="btn btn-primary" style="margin-left: 1%;"> <span>+</span> Agregar con archivo Excel </button> <br/>  -->
+
+	<br/><br/> 
+	<!-- Filtro busqueda --> 
+
+	<div class="row"> 
+
+		<!-- <div class="col-md-4"> 
+			<div class="form-group"> 
+
+				<label class="control-label" for="visible"> visible </label> 
+				<select (change)="resetearPaginacion(); obtenerListaPrincipal()" id="visibleId" class="form-control"> 
+					<option value=""> - todos - </option> 
+					<option value="true"> si </option> 
+					<option value="false"> no </option> 
+				</select> 
+
+			</div> 
+		</div>  -->
+
+		<div class="col-md-4"> 
+			<div class="form-group"> 
+
+				<label class="control-label" for="autor"> Autor </label> 
+				<input (keyup)="resetearPaginacion(); obtenerListaPrincipal()" type="text" id="autorId" class="form-control" /> 
+
+			</div> 
+		</div> 
+		<div class="col-md-4"> 
+			<div class="form-group"> 
+
+				<label class="control-label" for="titulo"> Título </label> 
+				<input (keyup)="resetearPaginacion(); obtenerListaPrincipal()" type="text" id="tituloId" class="form-control" /> 
+
+			</div> 
+		</div> 
+		<div class="col-md-4"> 
+			<div class="form-group"> 
+
+				<label class="control-label" for="usuario"> Usuario </label> 
+				<!-- Opcion 1: Usar select normal con datos obtenidos de la funcion obtenerListasBuscador() --> 
+				<select id="usuarioId" (change)="resetearPaginacion(); obtenerListaPrincipal()" class="form-control"> 
+					<option value=""> -Todos- </option> 
+					<ng-container *ngFor="let usuario of listasBuscador['listaUsuario']"> 
+						<option value="{{usuario.id}}"> {{usuario.apellidoPaterno}} {{usuario.apellidoMaterno}} {{usuario.nombre}} </option> 
+					</ng-container> 
+				</select> 
+
+				<!-- Opcion 2: Select buscador. Como requisito el input y select deben estar dentro de un contenedor y ser los unicos de su tipo. Ej: un div --> 
+				<!-- 
+				<div> 
+					<input type="text" style="display: none; width: 100%;" class="form-control" /> 
+
+					<select id="usuarioId" (click)="inicializarSelectBuscador($event)" rutaWebApi="/CabeceraComposicionMusical/llenarSelect2" 
+					(change)="resetearPaginacion(); obtenerListaPrincipal()" entidad="Usuario" atributoBuscado="id" class="form-control"> 
+						<option value=""> -Todos- </option> 
+					</select> 
+				</div> 
+				--> 
+
+			</div> 
+		</div> 
+	</div> 
+
+	<!-- Fin filtro busqueda --> 
+
+	<br/> 
+	<h4> Listado de Composiciones Musicales </h4> 
+
+	<!-- Inicio nav paginacion --> 
+	<br/> 
+
+	<div *ngIf="totalPaginas > 0"> 
+		<div class="row"> 
+			<div class="col-md-1"> 
+				<button [disabled]="paginaActual == 0" (click)="paginaActual = paginaActual - 1; obtenerListaPrincipal()" type="button" class="btn btn-default"> 
+					<span> < </span> Anterior 
+				</button> 
+			</div> 
+			<div class="col-md-1"> 
+				<button [disabled]="paginaActual >= totalPaginas" (click)="paginaActual = paginaActual + 1; obtenerListaPrincipal()" type="button" class="btn btn-default"> 
+					Siguiente <span> > </span> 
+				</button> 
+			</div> 
+		</div> 
+	</div> 
+
+	<br/> 
+	<!-- Fin nav paginacion --> 
+
+	<div *ngIf="listaCabeceraComposicionMusical.length > 0" class="table-responsive"> <!-- Contenedor para que la tabla sea responsiva --> 
+		<table class="table table-bordered"> 
+			<thead> 
+				<tr> 
+					<th> Id </th> 
+					<!-- <th> visible </th>  -->
+					<th> Autor </th> 
+					<th> Título </th> 
+					<th> Usuario </th> 
+					<th> </th> 
+					<th> </th> 
+				</tr> 
+			</thead> 
+			<tbody> 
+				<ng-container *ngFor="let cabeceraComposicionMusical of listaCabeceraComposicionMusical"> 
+					<tr> 
+						<td> {{cabeceraComposicionMusical.id}} </td> 
+						<!-- <td> {{cabeceraComposicionMusical.visible}} </td>  -->
+						<td> {{cabeceraComposicionMusical.autor}} </td> 
+						<td> {{cabeceraComposicionMusical.titulo}} </td> 
+						<td> {{cabeceraComposicionMusical.usuario.apellidoPaterno}} {{cabeceraComposicionMusical.usuario.apellidoMaterno}} {{cabeceraComposicionMusical.usuario.nombre}} </td> 
+						<td> 
+							<a href="javascript:;" (click)="editar(cabeceraComposicionMusical.id)"> Editar </a> 
+						</td> 
+						<td> 
+							<a href="javascript:;" (click)="eliminar(cabeceraComposicionMusical.id)"> Eliminar </a> 
+						</td> 
+					</tr> 
+				</ng-container> 
+			</tbody> 
+		</table> 
+
+		<!-- 
+		<button (click)="exportarListaPrincipal('excel')" class="btn btn-primary"> Exportar a Excel </button> 
+		<button (click)="exportarListaPrincipal('pdf')" class="btn btn-warning" style="margin-left: 1%;"> Exportar a PDF </button>  
+		-->
+
+		<br/><br/> 
+	</div>  <!-- Fin Contenedor para que la tabla sea responsiva --> 
+</div>  <!-- Fin div para la operacion listar --> 
+<div [style.display]="operacion == 'crear' || operacion == 'editar' ? 'block' : 'none'"> 
+
+	<a href="javascript:;" (click)="operacion = 'listar'"> Volver </a> <br/><br/> 
+
+	<!-- <p> {{cabeceraComposicionMusical | json}} </p> <br/> --> 
+
+	<form (ngSubmit)="guardar($event)"> 
+
+		<div class="row"> 
+
+			<!-- <div class="col-md-4"> 
+				<div class="form-group"> 
+					<label class="control-label" for="visible"> visible </label> 
+					<select [(ngModel)]="cabeceraComposicionMusical.visible" name="visible.id" class="form-control"> 
+						<option value=""> - Seleccione - </option> 
+						<option value="true" [selected]="cabeceraComposicionMusical.visible == true"> si </option> 
+						<option value="false" [selected]="cabeceraComposicionMusical.visible == false"> no </option> 
+					</select> 
+				</div> 
+			</div>  -->
+
+			<div class="col-md-4"> 
+				<div class="form-group"> 
+					<label class="control-label" for="autor"> Autor </label> 
+					<input type="text" [(ngModel)]="cabeceraComposicionMusical.autor" name="autor" class="form-control" /> 
+				</div> 
+			</div> 
+			<div class="col-md-4"> 
+				<div class="form-group"> 
+					<label class="control-label" for="titulo"> Título </label> 
+					<input type="text" [(ngModel)]="cabeceraComposicionMusical.titulo" name="titulo" class="form-control" /> 
+				</div> 
+			</div> 
+
+			<!--
+			<div class="col-md-4"> 
+				<div class="form-group"> 
+					<label class="control-label" for="usuario"> usuario </label> 
+					<!- - Opcion 1: Llenar el select con los registros obtenidos de la funcion obtenerListasBuscador() - -> 
+					<select [(ngModel)]="cabeceraComposicionMusical.usuario.id" name="usuario.id" class="form-control"> 
+						<option value=""> - Seleccione - </option> 
+						<ng-container *ngFor="let usuario of listasBuscador.listaUsuario"> 
+							<option value="{{usuario.id}}"> {{usuario | json}} </option> 
+						</ng-container> 
+					</select> 
+
+					<!- - Opcion 2: Usar select buscador. El evento change es para que al seleccionar un option, su texto se vea reflejado en lo que completa angular - -> 
+					<!- - 
+					<div> 
+						<input type="text" style="display: none; width: 100%;" class="form-control" /> 
+
+						<select (click)="inicializarSelectBuscador($event)" [(ngModel)]="cabeceraComposicionMusical.usuario.id" rutaWebApi="/CabeceraComposicionMusical/llenarSelect2" 
+						(change)="cabeceraComposicionMusical.usuario.toString = $event.target.options[$event.target.selectedIndex].text" 
+						name="usuario.id" entidad="Usuario" atributoBuscado="id" class="form-control"> 
+							<option value=""> - Seleccione - </option> 
+							<ng-container *ngIf="cabeceraComposicionMusical.usuario.id != null"> 
+								<option value="{{cabeceraComposicionMusical.usuario.id}}" selected> {{cabeceraComposicionMusical.usuario.toString}} </option> 
+							</ng-container> 
+						</select> 
+					</div> 
+					- -> 
+				</div> 
+			</div> 
+			-->
+
+		</div> <!-- Fin <div class="row"> -->		<!-- Inicio referencias cruzadas de la entidad CabeceraComposicionMusical --> 
+
+		<br/> 
+
+        <div class="row" style="background-color: lightgray; padding: 1em;"> 
+            <div class="col-md-2"> 
+                <button type="button" (click)="modificarTono('bajar')" class="btn btn-success"> <span> < </span> Bajar de Tono </button> 
+            </div> 
+            <div class="col-md-2"> 
+                <button type="button" (click)="modificarTono('subir')" class="btn btn-primary"> Subir de Tono <span> > </span> </button> 
+            </div> 
+            <!-- <div class="col-md-2"> 
+                <button type="button" (click)="agregarNuevoDetalleComposicionMusical()" class="btn btn-success"> <span>+</span> Agregar Nuevo DetalleComposicionMusical </button>
+            </div>  -->
+        </div> 
+        <br/><br/>
+
+
+		<!-- Si el objeto de tipo CabeceraComposicionMusical tiene detalles de tipo DetalleComposicionMusical --> 
+		<ng-container [style.display]="cabeceraComposicionMusical.listaDetalleComposicionMusical != null && cabeceraComposicionMusical.listaDetalleComposicionMusical.length > 0 ? 'block' : 'none'"> 
+
+			<br/> 
+			<h4> Detalles de la Composición Musical. Página {{paginacionListaDetalleComposicionMusical.pagina}} de {{paginacionListaDetalleComposicionMusical.totalPaginas}} </h4> 
+
+			<div id="div_numeros_paginacion"></div> <br/>
+
+			<!-- 
+			<div *ngIf="paginacionListaDetalleComposicionMusical.totalPaginas > 1" class="row"> 
+				<div class="col-md-1"> 
+					<button [disabled]="paginacionListaDetalleComposicionMusical.pagina == 1"
+					(click)="paginacionListaDetalleComposicionMusical.pagina = paginacionListaDetalleComposicionMusical.pagina - 1; paginarListaDetalleComposicionMusical()" 
+					type="button" class="btn btn-default"> <span> < </span> Anterior </button> 
+				</div> 
+				<div class="col-md-1"> 
+					<button [disabled]="paginacionListaDetalleComposicionMusical.pagina == paginacionListaDetalleComposicionMusical.totalPaginas"
+					(click)="paginacionListaDetalleComposicionMusical.pagina = paginacionListaDetalleComposicionMusical.pagina + 1; paginarListaDetalleComposicionMusical()" 
+					type="button" class="btn btn-default"> Siguiente <span> > </span> </button> 
+				</div> 
+			</div>  
+			-->
+
+			<table class="table table-bordered"> 
+				<thead> 
+					<tr> 
+						<!-- <th> id </th>  -->
+						<th> </th> 
+						<th> Acorde </th>  <!-- <th> cadenaListaSubDetalles </th> -->
+						<th> </th> 
+					</tr> 
+				</thead> 
+				<tbody> 
+
+					<!-- <ng-container *ngFor="let detalle of cabeceraComposicionMusical.listaDetalleComposicionMusical"> -->
+
+					<ng-container *ngFor="let detalle of paginacionListaDetalleComposicionMusical.despliegue"> 
+						<tr> 
+							<!-- <td> {{detalle.id}} </td>  -->
+							<td> 
+								{{detalle.orden}}
+								<!-- <input (keyup)="actualizarDetalleComposicionMusical($event, detalle)" type="number" name="orden" value="{{detalle.orden}}" class="form-control" />  -->
+							</td> 
+							<td> 
+                                <!-- <input (keyup)="actualizarDetalleComposicionMusical($event, detalle)" 
+                                type="text" name="cadenaListaSubDetalles" value="{{detalle.cadenaListaSubDetalles}}" class="form-control" />  -->
+
+                                <ul id="piano_{{detalle.id}}" class="piano">
+
+                                    <ng-container *ngFor="let octava of [0,1,2,3,4,5,6]"> <!-- Construye las octavas de la cero a la 6 -->
+        
+                                        <li>
+                                            <div id="DO_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('DO_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div>  <!-- do -->
+                                        </li> 
+                                        <li>
+                                            <div id="RE_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('RE_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div>  <!-- re -->   
+        
+                                            <span id="DO_{{octava}}_sostenido" (click)="tocarTecla($event, detalle)" 
+                                            class="tecla {{marcarTeclaRecorrida('DO_' + octava + '_sostenido', detalle) ? 'tecla_pulsada' : ''}}"></span> <!-- do# -->
+                                        </li>
+                                        <li>
+                                            <div id="MI_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('MI_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div> <!-- mi -->
+        
+                                            <span id="RE_{{octava}}_sostenido" (click)="tocarTecla($event, detalle)" 
+                                            class="tecla {{marcarTeclaRecorrida('RE_' + octava + '_sostenido', detalle) ? 'tecla_pulsada' : ''}}"></span> <!-- re# --> 
+                                        </li>
+                                        <li>
+                                            <div id="FA_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('FA_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div> <!-- fa -->
+                                        </li> 
+                                        <li>
+                                            <div id="SOL_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('SOL_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div> <!-- sol -->
+        
+                                            <span id="FA_{{octava}}_sostenido" (click)="tocarTecla($event, detalle)" 
+                                            class="tecla {{marcarTeclaRecorrida('FA_' + octava + '_sostenido', detalle) ? 'tecla_pulsada' : ''}}"></span> <!-- fa# -->  
+                                        </li>
+                                        <li>
+                                            <div id="LA_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('LA_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div> <!-- la -->
+        
+                                            <span id="SOL_{{octava}}_sostenido" (click)="tocarTecla($event, detalle)" 
+                                            class="tecla {{marcarTeclaRecorrida('SOL_' + octava + '_sostenido', detalle) ? 'tecla_pulsada' : ''}}"></span> <!-- sol# -->
+                                        </li>
+                                        <li>
+                                            <div id="SI_{{octava}}" (click)="tocarTecla($event, detalle)" 
+                                            class="anchor tecla {{marcarTeclaRecorrida('SI_' + octava, detalle) ? 'tecla_pulsada' : ''}}"></div> <!-- si -->
+        
+                                            <span id="LA_{{octava}}_sostenido" (click)="tocarTecla($event, detalle)" 
+                                            class="tecla {{marcarTeclaRecorrida('LA_' + octava + '_sostenido', detalle) ? 'tecla_pulsada' : ''}}"></span> <!-- la# -->
+                                        </li>
+        
+                                    </ng-container>
+        
+                                    <!--===================================================================================-->
+                                    <!-- Octava 7 -->
+            
+									<li>
+										<div id="DO_7" (click)="tocarTecla($event, detalle)" 
+										class="anchor tecla {{marcarTeclaRecorrida('DO_7', detalle) ? 'tecla_pulsada' : ''}}"></div>  <!-- do -->
+									</li> 
+        
+                                </ul>
+        
+							</td> 
+							<td> 
+
+                                <button type="button" (click)="tocarAcorde(detalle)" class="btn btn-primary" style="width: 100%">Tocar </button> <br/>
+
+                                <button type="button" (click)="agregarNuevoAcorde(detalle)" class="btn btn-success" style="width: 100%"> <span> + </span> Agregar <br/> Debajo </button> <br/>
+        
+                                <button type="button" (click)="eliminarAcorde(detalle)" class="btn btn-danger" style="width: 100%"> <span> - </span> Quitar </button>
+                                
+								<!-- <button (click)="quitarDetalleComposicionMusical(detalle)"> Quitar de la lista </button> <br/>  -->
+							</td> 
+						</tr> 
+					</ng-container> 
+				</tbody> 
+			</table> 
+		</ng-container> 
+		<!-- Fin referencias cruzadas de la entidad CabeceraComposicionMusical --> 
+
+		<br/> 
+		<button type="submit" class="btn btn-primary"> Guardar </button> <br/> 
+
+	</form> 
+
+</div>  <!-- Fin div para la operacion crear y la operacion editar --> 
+
+<!-- <ng-container *ngIf="operacion == 'usarExcel'"> 
+
+	<a href="javascript:;" (click)="operacion = 'listar'"> Volver </a> <br/><br/> 
+
+	<form #formSubirExcel="ngForm"> 
+
+		<div class="row"> 
+
+			<div class="col-md-4"> 
+				<div class="form-group"> 
+					<label class="control-label" for="Archivo"> Archivo </label> 
+					<input type="file" name="archivo" class="form-control" #archivo /> 
+				</div> 
+			</div> 
+
+		</div> 
+
+		<br/> 
+		<button type="button" (click)="subirExcel(formSubirExcel, archivo)" class="btn btn-primary"> Guardar </button> <br/> 
+
+	</form> 
+
+</ng-container> -->

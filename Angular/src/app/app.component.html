@@ -1,0 +1,64 @@
+
+<!-- 
+<style>
+  .clase-mostrar { display: block }
+  .clase-ocultar { display: none; }
+</style> 
+-->
+
+<!-- Imagen de carga de datos -->
+<div style="display: none" id="loading-spinner"></div> 
+
+<!-- Menú de Navegación -->
+
+<!-- <nav [ngClass]="{'clase-ocultar': autorizadoEntrar == false}" class="navbar navbar-inverse" role="navigation"> -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="container">
+  <!--===================================-->  
+  <!--  Este Menu queda escondido y aparece solo cuando la pantalla es muy pequeña...son las Barritas -->
+
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"> ProyectoAngular 8 </a>
+      </div>
+      <!--===================================-->		
+      
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+        <ul *ngIf="! autorizadoEntrar" class="nav navbar-nav navbar-right">				
+
+              <li> <a [routerLink]="['/login']">Login</a> </li> 
+              <li> <a [routerLink]="['/composicionMusical/listar']">Listar Composiciones</a> </li>
+              
+        </ul>
+        <ul *ngIf="autorizadoEntrar" class="nav navbar-nav navbar-right">				
+
+            <!-- <li> <a [routerLink]="['/aaaaaaaaaaaa']" *ngIf="rolesUsuarioActualSistema.indexOf('ROLE_SUPER_ADMIN') == 0"> Prohibido </a> </li> -->
+            <li> <a [routerLink]="['/composicionMusical/crearEditar']"> Crear/Editar Composición</a> </li>
+
+            <li> <a href="#" (click)="SalirSistema($event)"> Cerrar Sesion </a> </li>  
+            
+        </ul>
+      </div>
+
+
+  </div>
+</nav>
+
+<!-- Fin Menú de Navegación -->
+
+<div class="container-fluid" role="main">      
+
+  <router-outlet (activate)="alCargarComponente()"></router-outlet>   
+
+</div>
+
+
+
+

@@ -1,0 +1,32 @@
+
+
+
+  <form (ngSubmit)="loguearse($event, formLogin);" #formLogin="ngForm">
+
+    <br/><br/>
+
+    <div class="row"> 
+      <div class="col-md-2"> 
+        <div class="form-group"> 
+
+          <label class="control-label" for="username"> Usuario </label> 
+          <input type="text" name="username" class="form-control" ngModel /> 
+
+        </div> 
+          </div> 
+          <div class="col-md-2"> 
+        <div class="form-group"> 
+
+          <label class="control-label" for="password"> Password </label> 
+          <input type="password" name="password" class="form-control" ngModel /> 
+
+        </div> 
+          </div> 
+          <div class="col-md-12">
+              <div class="form-group">   
+                  <button class="btn btn-success "> Entrar </button>
+              </div>
+          </div>
+    </div> 
+
+  </form>  
