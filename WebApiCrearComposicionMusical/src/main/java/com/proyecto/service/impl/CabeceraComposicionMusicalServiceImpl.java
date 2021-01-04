@@ -1,34 +1,35 @@
-package com.proyecto.model.dao; 
+package com.proyecto.service.impl;
 
-import com.proyecto.model.entity.CabeceraComposicionMusical; 
-import com.proyecto.model.entity.Usuario;
-import com.proyecto.model.repository.IUsuarioRepository;
-import com.proyecto.model.entity.DetalleComposicionMusical; 
-import javax.persistence.criteria.CriteriaBuilder; 
-import javax.persistence.criteria.CriteriaQuery; 
-import javax.persistence.criteria.Root; 
-import javax.persistence.criteria.Predicate; 
-import java.util.ArrayList; 
-import java.util.HashMap; 
-import java.util.List; 
-import org.springframework.stereotype.Service; 
-import org.hibernate.Session; 
-import org.hibernate.SessionFactory; 
-import org.hibernate.Transaction; 
-import org.springframework.util.StringUtils; 
-import javax.persistence.criteria.Fetch; 
-import javax.persistence.criteria.JoinType; 
-import javax.persistence.criteria.Join; 
-import java.util.stream.*; 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Fetch;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails; 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import com.proyecto.model.entity.CabeceraComposicionMusical;
+import com.proyecto.model.entity.DetalleComposicionMusical;
+import com.proyecto.model.entity.Usuario;
+import com.proyecto.model.repository.IUsuarioRepository;
+import com.proyecto.service.ICabeceraComposicionMusicalService;
+import com.proyecto.service.IDaoGenericoService; 
 
 
 @Service  
-public class CabeceraComposicionMusicalDao 
+public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposicionMusicalService
 { 
 
 	@Autowired 
@@ -37,7 +38,11 @@ public class CabeceraComposicionMusicalDao
 	@Autowired 
 	private IUsuarioRepository usuarioRepository; 
 	
+	@Autowired 
+	private IDaoGenericoService daoGenerico;
 	
+	
+	@Override
 	public Usuario obtenerUsuarioLogueado()
 	{
 		if (
@@ -52,8 +57,19 @@ public class CabeceraComposicionMusicalDao
 
 		return null;
 	}
+	
+	
+	@Override
+	public Object obtenerListasBuscador()  // url:    /CabeceraComposicionMusical/obtenerListasBuscador 
+	{ 	
+		HashMap<String, Object> mapa = new HashMap<>(); 
+		mapa.put("listaUsuario", daoGenerico.findAll("select new map(c.id as id, c.apellidoPaterno as apellidoPaterno, c.visible as visible, c.nombre as nombre, c.activo as activo, c.largoPassword as largoPassword, c.telefono as telefono, c.password as password, c.rut as rut, c.username as username, c.apellidoMaterno as apellidoMaterno) from Usuario c")); 
+
+		return mapa; 
+	} 
 
 
+	@Override
 	public CabeceraComposicionMusical buscarPorId(int id) 
 	{ 
 		Session sesion = sessionFactory.openSession(); 
@@ -62,7 +78,6 @@ public class CabeceraComposicionMusicalDao
 			CabeceraComposicionMusical cabeceraComposicionMusical =  (CabeceraComposicionMusical) sesion.createQuery( 
 				"select c from CabeceraComposicionMusical c " + 
 				"join fetch c.usuario " +   // Obtiene informacion de la entidad padre Usuario 
-				// "join fetch c.listaDetalleComposicionMusical " +   // Obtiene informacion de la entidad hija DetalleComposicionMusical 
 				"where c.id = " + id 
 			).uniqueResult(); 
 
@@ -83,6 +98,8 @@ public class CabeceraComposicionMusicalDao
 		} 
 	} 
 
+	
+	@Override
 	public <T> Object llenarSelect2(Class<T> claseEntidad, String atributoBuscado, String busqueda, int registrosPorPagina, int numeroPagina) 
 	{ 
 		Session session = sessionFactory.openSession(); 
@@ -139,6 +156,8 @@ public class CabeceraComposicionMusicalDao
 		} 
 	} 
 
+	
+	@Override
 	public List<CabeceraComposicionMusical> listar() 
 	{ 
 		Session sesion = sessionFactory.openSession(); 
@@ -157,6 +176,8 @@ public class CabeceraComposicionMusicalDao
 		} 
 	} 
 
+	
+	@Override
 	public HashMap<String, Object> llenarDataTableCabeceraComposicionMusical(CabeceraComposicionMusical cabeceraComposicionMusical, int inicio, int registrosPorPagina) 
 	{ 
 		Session session = sessionFactory.openSession(); 
@@ -222,6 +243,7 @@ public class CabeceraComposicionMusicalDao
 	} 
 
 
+	@Override
 	public CabeceraComposicionMusical guardar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
 	{ 
 		validarCabeceraComposicionMusical(cabeceraComposicionMusical);  // Validación 
@@ -260,6 +282,7 @@ public class CabeceraComposicionMusicalDao
 	} 
 
 
+	@Override
 	public void actualizar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
 	{ 
 		validarCabeceraComposicionMusical(cabeceraComposicionMusical);  // Validación 
@@ -338,6 +361,7 @@ public class CabeceraComposicionMusicalDao
 	} 
 
 
+	@Override
 	public Boolean borrar(int id) 
 	{ 
 		Session sesion = null; 
@@ -363,6 +387,7 @@ public class CabeceraComposicionMusicalDao
 	} 
 
 
+	@Override
 	public void procesarDatosExcel(List<CabeceraComposicionMusical> elementosInsertados, List<CabeceraComposicionMusical> elementosActualizados) 
 	{ 
 		Session sesion = null; 
@@ -385,6 +410,7 @@ public class CabeceraComposicionMusicalDao
 	} 
 
 
+	@Override
 	public void validarCabeceraComposicionMusical(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
 	{ 
 		String mensaje = ""; 
@@ -433,6 +459,7 @@ public class CabeceraComposicionMusicalDao
 
 
 } 
+
 
 
 

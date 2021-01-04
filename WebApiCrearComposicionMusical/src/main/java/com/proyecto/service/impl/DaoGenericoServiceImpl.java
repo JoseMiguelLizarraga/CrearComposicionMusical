@@ -1,21 +1,24 @@
-package com.proyecto.model.dao; 
+package com.proyecto.service.impl;
 
 import java.util.List;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.proyecto.service.IDaoGenericoService;
 
 
 @Service  
-public class DaoGenerico 
+public class DaoGenericoServiceImpl implements IDaoGenericoService
 {
+	
     @Autowired
     private SessionFactory sessionFactory;
+    
 
+    @Override
     public boolean any(String hql) 
     {
         Session session = sessionFactory.openSession();
@@ -28,6 +31,8 @@ public class DaoGenerico
         return false;
     }
 
+    
+    @Override
     public <T> T find(String hql) 
     {
     	Session sesion = sessionFactory.openSession();
@@ -43,16 +48,16 @@ public class DaoGenerico
             }
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	throw new RuntimeException("Se encontro un error en el metodo find");
         }
         finally{
             sesion.close();
         }
-                
-        return null;
     }
     
     
+    @Override
     public <T> T findById(Class<T> entityClass, int id) 
     {
     	Session sesion = sessionFactory.openSession();
@@ -66,16 +71,16 @@ public class DaoGenerico
             return null;
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	throw new RuntimeException("Se encontro un error en el metodo findById");
         }
         finally{
             sesion.close();
         }
-                
-        return null;
     }
     
     
+    @Override
     public <T> T findById(Class<T> entityClass, String id) 
     {
     	Session sesion = sessionFactory.openSession();
@@ -90,16 +95,16 @@ public class DaoGenerico
             return null;
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	throw new RuntimeException("Se encontro un error en el metodo findById");
         }
         finally{
             sesion.close();
         }
-                
-        return null;   
     }
 
 
+    @Override
     public <T> List<T> findAll(String hql) 
     {
         List<T> entities = null;
@@ -111,16 +116,16 @@ public class DaoGenerico
             return entities;
         }
         catch(Exception ex){
-            ex.printStackTrace();
+            //ex.printStackTrace();
+        	throw new RuntimeException("Se encontro un error en el metodo findAll");
         }
         finally{
             sesion.close();
         }
-        
-        return null;
     }
     
     
+    @Override
     public void save(Object entity) 
     {
         Session sesion = null;
@@ -134,12 +139,13 @@ public class DaoGenerico
             sesion.close();
         } catch (Exception ex) {
             tx.rollback();
-            ex.printStackTrace();
+            //ex.printStackTrace();
             throw new RuntimeException("No se pudo insertar el registro");
         }
     }
     
     
+    @Override
     public void update(Object entity) 
     {
         Session sesion = null;
@@ -154,12 +160,13 @@ public class DaoGenerico
         
         } catch (Exception ex) {
             tx.rollback();
-            ex.printStackTrace();
+            //ex.printStackTrace();
             throw new RuntimeException("No se pudo actualizar el registro");
         }
     }
     
     
+    @Override
     public void delete(Object entity) 
     {
         Session sesion = null;
@@ -174,12 +181,13 @@ public class DaoGenerico
         
         } catch (Exception ex) {
             tx.rollback();
-            ex.printStackTrace();
+            //ex.printStackTrace();
             throw new RuntimeException("No se pudo borrar el registro");
         }
     }
     
     
+    @Override
     public <T> void deleteById(Class<T> entityClass, int id) 
     {
         Session sesion = null;
@@ -199,9 +207,10 @@ public class DaoGenerico
         }
         catch(Exception ex){
             tx.rollback();
-            ex.printStackTrace();
+            //ex.printStackTrace();
             throw new RuntimeException("No se pudo borrar el registro");
         }          
     }
     
 }
+

@@ -1,10 +1,9 @@
 package com.proyecto.controller; 
 
-import com.proyecto.model.dao.DaoGenerico; 
-import com.proyecto.model.dao.CabeceraComposicionMusicalDao; 
 import com.proyecto.model.entity.CabeceraComposicionMusical; 
-import com.proyecto.model.entity.Usuario; 
-import java.util.HashMap; 
+import com.proyecto.model.entity.Usuario;
+import com.proyecto.service.ICabeceraComposicionMusicalService;
+
 import java.util.List; 
 import java.util.Map; 
 import javax.servlet.http.HttpServletRequest; 
@@ -35,14 +34,16 @@ import org.springframework.http.MediaType;
 @RequestMapping("/api/CabeceraComposicionMusical") 
 public class CabeceraComposicionMusicalController 
 { 
-	@Autowired private CabeceraComposicionMusicalDao dao; 
-	@Autowired private DaoGenerico daoGenerico; 
+	
+	@Autowired 
+	private ICabeceraComposicionMusicalService servicio; 
+
 
 	@GetMapping 
 	public Object listar()  // url:    /CabeceraComposicionMusical/ 
 	{ 
 		try { 
-			return dao.listar(); 
+			return servicio.listar(); 
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
@@ -53,10 +54,7 @@ public class CabeceraComposicionMusicalController
 	public Object obtenerListasBuscador()  // url:    /CabeceraComposicionMusical/obtenerListasBuscador 
 	{ 
 		try { 
-			HashMap<String, Object> mapa = new HashMap<>(); 
-			mapa.put("listaUsuario", daoGenerico.findAll("select new map(c.id as id, c.apellidoPaterno as apellidoPaterno, c.visible as visible, c.nombre as nombre, c.activo as activo, c.largoPassword as largoPassword, c.telefono as telefono, c.password as password, c.rut as rut, c.username as username, c.apellidoMaterno as apellidoMaterno) from Usuario c")); 
-
-			return mapa; 
+			return servicio.obtenerListasBuscador();
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
@@ -68,7 +66,7 @@ public class CabeceraComposicionMusicalController
 	{ 
 		try { 
 			if (clase.equals("Usuario")) { 
-				return dao.llenarSelect2(Usuario.class, atributoBuscado, busqueda, registrosPorPagina, numeroPagina); 
+				return servicio.llenarSelect2(Usuario.class, atributoBuscado, busqueda, registrosPorPagina, numeroPagina); 
 			} 
 		} 
 		catch(IllegalArgumentException ex) { 
@@ -89,7 +87,7 @@ public class CabeceraComposicionMusicalController
 			int registrosPorPagina = Integer.parseInt(request.getParameter("length"));  // Es la cantidad de registros por pagina  
 
 
-			Map<String, Object> mapa = dao.llenarDataTableCabeceraComposicionMusical(cabeceraComposicionMusical, inicio, registrosPorPagina); 
+			Map<String, Object> mapa = servicio.llenarDataTableCabeceraComposicionMusical(cabeceraComposicionMusical, inicio, registrosPorPagina); 
 			return mapa; 
 		} 
 		catch(Exception ex) 
@@ -117,7 +115,7 @@ public class CabeceraComposicionMusicalController
 	{ 
 		try { 
 			if (result.hasErrors()) throw new Exception(result.getAllErrors().stream().findFirst().get().getDefaultMessage());  
-			return ResponseEntity.ok(dao.guardar(cabeceraComposicionMusical)); 
+			return ResponseEntity.ok(servicio.guardar(cabeceraComposicionMusical)); 
 		} 
 		catch(IllegalArgumentException ex) { 
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage()); 
@@ -132,7 +130,7 @@ public class CabeceraComposicionMusicalController
 	public Object editar(@PathVariable("id") int id) 
 	{ 
 		try { 
-			return dao.buscarPorId(id);  
+			return servicio.buscarPorId(id);  
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
@@ -145,7 +143,7 @@ public class CabeceraComposicionMusicalController
 	{ 
 		try { 
 			if (result.hasErrors()) throw new Exception(result.getAllErrors().stream().findFirst().get().getDefaultMessage());  
-			dao.actualizar(cabeceraComposicionMusical); 
+			servicio.actualizar(cabeceraComposicionMusical); 
 			return new ResponseEntity(HttpStatus.OK); 
 		} 
 		catch(IllegalArgumentException ex) { 
@@ -161,7 +159,7 @@ public class CabeceraComposicionMusicalController
 	public Object borrar(@PathVariable("id") int id) 
 	{ 
 		try { 
-			dao.borrar(id); 
+			servicio.borrar(id); 
 			return new ResponseEntity(HttpStatus.OK); 
 		} 
 		catch(Exception ex) 
