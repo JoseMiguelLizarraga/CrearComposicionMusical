@@ -15,15 +15,19 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import com.proyecto.model.entity.CabeceraComposicionMusical;
 import com.proyecto.model.entity.DetalleComposicionMusical;
 import com.proyecto.model.entity.Usuario;
-import com.proyecto.model.repository.IUsuarioRepository;
+import com.proyecto.model.repository.CabeceraComposicionMusicalRepository;
+import com.proyecto.model.repository.DetalleComposicionMusicalRepository;
+import com.proyecto.model.repository.UsuarioRepository;
 import com.proyecto.service.ICabeceraComposicionMusicalService;
 import com.proyecto.service.IDaoGenericoService; 
 
@@ -36,10 +40,13 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 	private SessionFactory sessionFactory; 
 	
 	@Autowired 
-	private IUsuarioRepository usuarioRepository; 
+	private UsuarioRepository usuarioRepository; 
 	
 	@Autowired 
 	private IDaoGenericoService daoGenerico;
+	
+	@Autowired private CabeceraComposicionMusicalRepository repositorio;
+	@Autowired private DetalleComposicionMusicalRepository repositorio_DetalleComposicionMusical;
 	
 	
 	@Override
@@ -60,45 +67,64 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 	
 	
 	@Override
-	public Object obtenerListasBuscador()  // url:    /CabeceraComposicionMusical/obtenerListasBuscador 
+	public Object obtenerListasBuscador()  
 	{ 	
 		HashMap<String, Object> mapa = new HashMap<>(); 
 		mapa.put("listaUsuario", daoGenerico.findAll("select new map(c.id as id, c.apellidoPaterno as apellidoPaterno, c.visible as visible, c.nombre as nombre, c.activo as activo, c.largoPassword as largoPassword, c.telefono as telefono, c.password as password, c.rut as rut, c.username as username, c.apellidoMaterno as apellidoMaterno) from Usuario c")); 
 
 		return mapa; 
 	} 
-
-
+	
+	
 	@Override
 	public CabeceraComposicionMusical buscarPorId(int id) 
 	{ 
-		Session sesion = sessionFactory.openSession(); 
-
 		try { 
-			CabeceraComposicionMusical cabeceraComposicionMusical =  (CabeceraComposicionMusical) sesion.createQuery( 
-				"select c from CabeceraComposicionMusical c " + 
-				"join fetch c.usuario " +   // Obtiene informacion de la entidad padre Usuario 
-				"where c.id = " + id 
-			).uniqueResult(); 
+			CabeceraComposicionMusical cabeceraComposicionMusical = repositorio.buscarPorId(id); 
 
-			List<DetalleComposicionMusical> listaDetalleComposicionMusical = sesion.createQuery( 
-				"select c from DetalleComposicionMusical c " 
-				+ "where c.cabeceraComposicionMusical.id = " + id 
-			).list(); 
+			List<DetalleComposicionMusical> listaDetalleComposicionMusical = repositorio_DetalleComposicionMusical.findAllByCabeceraComposicionMusical(cabeceraComposicionMusical); 
 
-			cabeceraComposicionMusical.setListaDetalleComposicionMusical(listaDetalleComposicionMusical); 
+			cabeceraComposicionMusical.setListaDetalleComposicionMusical(listaDetalleComposicionMusical);  // Agrega referencias cruzadas de la entidad DetalleComposicionMusical  
 
 			return cabeceraComposicionMusical; 
 		} 
 		catch(Exception ex) { 
 			throw new RuntimeException("Error al buscar CabeceraComposicionMusical con el id: " + id + "." + ex.getMessage()); 
 		} 
-		finally { 
-			sesion.close(); 
-		} 
 	} 
 
+
+//	@Override
+//	public CabeceraComposicionMusical buscarPorId(int id) 
+//	{ 
+//		Session sesion = sessionFactory.openSession(); 
+//
+//		try { 
+//			CabeceraComposicionMusical cabeceraComposicionMusical =  (CabeceraComposicionMusical) sesion.createQuery( 
+//				"select c from CabeceraComposicionMusical c " + 
+//				"join fetch c.usuario " +   // Obtiene informacion de la entidad padre Usuario 
+//				"where c.id = " + id 
+//			).uniqueResult(); 
+//
+//			List<DetalleComposicionMusical> listaDetalleComposicionMusical = sesion.createQuery( 
+//				"select c from DetalleComposicionMusical c " 
+//				+ "where c.cabeceraComposicionMusical.id = " + id 
+//			).list(); 
+//
+//			cabeceraComposicionMusical.setListaDetalleComposicionMusical(listaDetalleComposicionMusical); 
+//
+//			return cabeceraComposicionMusical; 
+//		} 
+//		catch(Exception ex) { 
+//			throw new RuntimeException("Error al buscar CabeceraComposicionMusical con el id: " + id + "." + ex.getMessage()); 
+//		} 
+//		finally { 
+//			sesion.close(); 
+//		} 
+//	} 
+
 	
+	/*
 	@Override
 	public <T> Object llenarSelect2(Class<T> claseEntidad, String atributoBuscado, String busqueda, int registrosPorPagina, int numeroPagina) 
 	{ 
@@ -155,28 +181,84 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			session.close(); 
 		} 
 	} 
-
+	*/
 	
 	@Override
 	public List<CabeceraComposicionMusical> listar() 
 	{ 
-		Session sesion = sessionFactory.openSession(); 
-
 		try { 
-			return sesion.createQuery( 
-				"select c from CabeceraComposicionMusical c " 
-				+ "join fetch c.usuario "   // Obtiene informacion de la entidad padre Usuario 
-			).list(); 
+			return repositorio.findAll(); 
 		} 
 		catch(Exception ex) { 
 			throw new RuntimeException("Error al listar la entidad CabeceraComposicionMusical. " + ex.getMessage()); 
 		} 
-		finally { 
-			sesion.close(); 
+	} 
+
+	
+//	@Override
+//	public List<CabeceraComposicionMusical> listar() 
+//	{ 
+//		Session sesion = sessionFactory.openSession(); 
+//
+//		try { 
+//			return sesion.createQuery( 
+//				"select c from CabeceraComposicionMusical c " 
+//				+ "join fetch c.usuario "   // Obtiene informacion de la entidad padre Usuario 
+//			).list(); 
+//		} 
+//		catch(Exception ex) { 
+//			throw new RuntimeException("Error al listar la entidad CabeceraComposicionMusical. " + ex.getMessage()); 
+//		} 
+//		finally { 
+//			sesion.close(); 
+//		} 
+//	} 
+	
+	
+	@Override
+	public HashMap<String, Object> llenarDataTableCabeceraComposicionMusical(CabeceraComposicionMusical cabeceraComposicionMusical, int inicio, int registrosPorPagina) 
+	{ 
+		try { 
+			Usuario usuarioLogueado = obtenerUsuarioLogueado();
+			
+			int idUsuarioBuscado = (cabeceraComposicionMusical.getUsuario() != null && cabeceraComposicionMusical.getUsuario().getId() != null) ?
+				cabeceraComposicionMusical.getUsuario().getId() : 
+				(usuarioLogueado != null) ?
+					usuarioLogueado.getId() : 
+					0;	
+
+			int pagina = (inicio > 0) ? inicio / registrosPorPagina : inicio;  // Obtener la pagina en base a la posicion enviada por el datatable desde el frontend 
+			
+			List<CabeceraComposicionMusical> listaCabeceraComposicionMusical = repositorio.llenarDataTable( 
+				idUsuarioBuscado, 
+				cabeceraComposicionMusical.getVisible(), 
+				cabeceraComposicionMusical.getAutor(), 
+				cabeceraComposicionMusical.getTitulo(), 
+				PageRequest.of(pagina, registrosPorPagina) 
+			); 
+
+			long totalRegistros = repositorio.contarTotalRegistrosDataTable( 
+				idUsuarioBuscado, 
+				cabeceraComposicionMusical.getVisible(), 
+				cabeceraComposicionMusical.getAutor(), 
+				cabeceraComposicionMusical.getTitulo() 
+			); 
+
+			HashMap<String, Object> mapa = new HashMap<>(); 
+			mapa.put("recordsFiltered", totalRegistros); 
+			mapa.put("recordsTotal", totalRegistros); 
+
+			mapa.put("data", listaCabeceraComposicionMusical); 
+
+			return mapa; 
+		} 
+		catch(Exception ex){ 
+			throw new RuntimeException("Error al listar la entidad CabeceraComposicionMusical con el metodo llenarDataTable. " + ex.getMessage()); 
 		} 
 	} 
 
 	
+	/*
 	@Override
 	public HashMap<String, Object> llenarDataTableCabeceraComposicionMusical(CabeceraComposicionMusical cabeceraComposicionMusical, int inicio, int registrosPorPagina) 
 	{ 
@@ -202,12 +284,12 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			if (StringUtils.hasText(cabeceraComposicionMusical.getTitulo())) { 
 				predicates.add(criteriaBuilder.like(root.get("titulo"), "%" + cabeceraComposicionMusical.getTitulo() + "%")); 
 			}			
-			/*
-			if (cabeceraComposicionMusical.getUsuario() != null && cabeceraComposicionMusical.getUsuario().getId() != null) { 
-				Join<CabeceraComposicionMusical, Usuario> usuario_Join = (Join<CabeceraComposicionMusical, Usuario>) usuario_Fetch;   // Realiza join con la entidad Usuario a partir del fetch creado  
-				predicates.add(criteriaBuilder.equal(usuario_Join.get("id"), cabeceraComposicionMusical.getUsuario().getId() )); 
-			} 
-			*/
+			
+//			if (cabeceraComposicionMusical.getUsuario() != null && cabeceraComposicionMusical.getUsuario().getId() != null) { 
+//				Join<CabeceraComposicionMusical, Usuario> usuario_Join = (Join<CabeceraComposicionMusical, Usuario>) usuario_Fetch;   // Realiza join con la entidad Usuario a partir del fetch creado  
+//				predicates.add(criteriaBuilder.equal(usuario_Join.get("id"), cabeceraComposicionMusical.getUsuario().getId() )); 
+//			} 
+			
 			
 			Usuario usuarioLogueado = obtenerUsuarioLogueado();
 			
@@ -241,8 +323,37 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			session.close(); 
 		} 
 	} 
+	*/
 
+	@Override
+	@Transactional 
+	public CabeceraComposicionMusical guardar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
+	{ 
+		this.validarCabeceraComposicionMusical(cabeceraComposicionMusical);  // Validación 
 
+		try { 
+			Usuario usuarioLogueado = obtenerUsuarioLogueado();
+			cabeceraComposicionMusical.setUsuario(usuarioLogueado);   // Asi el creador de la composicion sera el usuario logueado
+			
+			repositorio.save(cabeceraComposicionMusical); 
+
+			if (cabeceraComposicionMusical.getListaDetalleComposicionMusical() != null && cabeceraComposicionMusical.getListaDetalleComposicionMusical().size() > 0)  // DetalleComposicionMusical 
+			{
+				for(DetalleComposicionMusical detalle : cabeceraComposicionMusical.getListaDetalleComposicionMusical()) { 
+					detalle.setCabeceraComposicionMusical(cabeceraComposicionMusical); 
+					repositorio_DetalleComposicionMusical.save(detalle); 
+				} 
+			} 
+
+			return cabeceraComposicionMusical; 
+		} 
+		catch (Exception ex) 
+		{ 
+			throw new RuntimeException("No se pudo insertar el registro. " + ex.getMessage()); 
+		} 
+	} 
+	
+	/*
 	@Override
 	public CabeceraComposicionMusical guardar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
 	{ 
@@ -280,8 +391,79 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			throw new RuntimeException("No se pudo insertar el registro. " + ex.getMessage()); 
 		} 
 	} 
+	*/
+	
+	@Override
+	@Transactional 
+	public void actualizar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
+	{ 
+		this.validarCabeceraComposicionMusical(cabeceraComposicionMusical);  // Validación 
+
+		try { 
+			CabeceraComposicionMusical objeto = this.buscarPorId(cabeceraComposicionMusical.getId()); 
+			
+			if (obtenerUsuarioLogueado() != objeto.getUsuario()) {
+				throw new RuntimeException("Usted no tiene permiso para realizar cambios en esta composicion"); 
+			}
+
+			//objeto.setUsuario(cabeceraComposicionMusical.getUsuario()); 
+			objeto.setVisible(cabeceraComposicionMusical.getVisible()); 
+			objeto.setAutor(cabeceraComposicionMusical.getAutor()); 
+			objeto.setTitulo(cabeceraComposicionMusical.getTitulo()); 
+
+			repositorio.save(objeto); 
+			//repositorio.save(cabeceraComposicionMusical);  // Grabar directo como viene desde la vista 
 
 
+			// Referencias Cruzadas de la entidad DetalleComposicionMusical 
+
+			List<DetalleComposicionMusical> listaDetalleComposicionMusical = cabeceraComposicionMusical.getListaDetalleComposicionMusical(); 
+
+			if (listaDetalleComposicionMusical != null && listaDetalleComposicionMusical.size() > 0) 
+			{ 
+				// Si solo se recibio un item y es nuevo 
+				if (listaDetalleComposicionMusical.size() == 1 && listaDetalleComposicionMusical.stream().anyMatch(c-> c.getId() == null)) { 
+					repositorio_DetalleComposicionMusical.deleteByCabeceraComposicionMusicalId(cabeceraComposicionMusical.getId()); 
+				} 
+				if (listaDetalleComposicionMusical.stream().anyMatch(c-> c.getId() != null))  // Si al menos un detalle trae id 
+				{ 
+					// Se borran los detalles almacenados cuyos ids no esten en los ids de los detalles actualizados 
+
+					repositorio_DetalleComposicionMusical.deleteByCabeceraComposicionMusicalAndIdNotIn( 
+						cabeceraComposicionMusical, 
+						listaDetalleComposicionMusical.stream().filter(a-> a.getId() != null).map(c -> c.getId()).collect(Collectors.toList()) 
+					); 
+
+				} 
+				for(DetalleComposicionMusical detalle : listaDetalleComposicionMusical) 
+				{ 
+					if (detalle.getId() != null)  // Si trae id significa que esta almacenado 
+					{ 
+						DetalleComposicionMusical detalleBuscado = repositorio_DetalleComposicionMusical.findById(detalle.getId()).orElse(null); 
+						detalleBuscado.setCadenaListaSubDetalles(detalle.getCadenaListaSubDetalles()); 
+						detalleBuscado.setOrden(detalle.getOrden()); 
+						repositorio_DetalleComposicionMusical.save(detalleBuscado); 
+					} 
+					else   // Si no esta guardado el detalle recorrido, se agrega 
+					{ 
+						detalle.setCabeceraComposicionMusical(cabeceraComposicionMusical); 
+						repositorio_DetalleComposicionMusical.save(detalle); 
+					} 
+				} 
+			} 
+			else  // Si no se recibieron detalles de la clase DetalleComposicionMusical 
+			{ 
+				repositorio_DetalleComposicionMusical.deleteByCabeceraComposicionMusicalId(cabeceraComposicionMusical.getId()); 
+			} 
+
+		} 
+		catch (Exception ex) { 
+			throw new RuntimeException("No se pudo actualizar el registro. " + ex.getMessage()); 
+		} 
+	} 
+	
+
+	/*
 	@Override
 	public void actualizar(CabeceraComposicionMusical cabeceraComposicionMusical) throws Exception 
 	{ 
@@ -359,8 +541,26 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			throw new RuntimeException("No se pudo actualizar el registro. " + ex.getMessage()); 
 		} 
 	} 
+	*/
 
+	@Override
+	@Transactional 
+	public Boolean borrar(int id) 
+	{ 
+		try { 
+			// Se borran las referencias de la tabla DetalleComposicionMusical 
+			repositorio_DetalleComposicionMusical.deleteByCabeceraComposicionMusicalId(id); 
 
+			repositorio.deleteById(id); 
+			return true; 
+		} 
+		catch (Exception ex) 
+		{ 
+			throw new RuntimeException("No se pudo borrar el CabeceraComposicionMusical con el id " + id + ". " + ex.getMessage()); 
+		} 
+	} 
+	
+	/*
 	@Override
 	public Boolean borrar(int id) 
 	{ 
@@ -385,6 +585,7 @@ public class CabeceraComposicionMusicalServiceImpl implements ICabeceraComposici
 			throw new RuntimeException("No se pudo borrar el CabeceraComposicionMusical con el id " + id + ". " + ex.getMessage()); 
 		} 
 	} 
+	*/
 
 
 	@Override

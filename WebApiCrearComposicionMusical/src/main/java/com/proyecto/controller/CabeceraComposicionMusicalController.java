@@ -1,7 +1,6 @@
 package com.proyecto.controller; 
 
 import com.proyecto.model.entity.CabeceraComposicionMusical; 
-import com.proyecto.model.entity.Usuario;
 import com.proyecto.service.ICabeceraComposicionMusicalService;
 
 import java.util.List; 
@@ -37,30 +36,32 @@ public class CabeceraComposicionMusicalController
 	
 	@Autowired 
 	private ICabeceraComposicionMusicalService servicio; 
-
-
+	
+	
 	@GetMapping 
-	public Object listar()  // url:    /CabeceraComposicionMusical/ 
+	public ResponseEntity<Object> listar()  
 	{ 
 		try { 
-			return servicio.listar(); 
+			return ResponseEntity.ok(servicio.listar()); 
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
 		} 
 	} 
+
 
 	@GetMapping(path = {"/obtenerListasBuscador"}) 
-	public Object obtenerListasBuscador()  // url:    /CabeceraComposicionMusical/obtenerListasBuscador 
+	public ResponseEntity<Object> obtenerListasBuscador()  
 	{ 
 		try { 
-			return servicio.obtenerListasBuscador();
+			return ResponseEntity.ok(servicio.obtenerListasBuscador());
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
 		} 
 	} 
 
+	/*
 	@RequestMapping(value = "/llenarSelect2") 
 	public @ResponseBody Object llenarSelect2(String clase, String atributoBuscado, String busqueda, int registrosPorPagina, int numeroPagina) 
 	{ 
@@ -78,14 +79,13 @@ public class CabeceraComposicionMusicalController
 
 		return null; 
 	} 
-
+	*/
 
 	private Map<String, Object> llenarInformacionDataTable(CabeceraComposicionMusical cabeceraComposicionMusical, HttpServletRequest request) 
 	{ 
 		try { 
 			int inicio = Integer.parseInt(request.getParameter("start")); 
 			int registrosPorPagina = Integer.parseInt(request.getParameter("length"));  // Es la cantidad de registros por pagina  
-
 
 			Map<String, Object> mapa = servicio.llenarDataTableCabeceraComposicionMusical(cabeceraComposicionMusical, inicio, registrosPorPagina); 
 			return mapa; 
@@ -111,7 +111,7 @@ public class CabeceraComposicionMusicalController
 
 
 	@PostMapping 
-	public ResponseEntity guardar(@RequestBody CabeceraComposicionMusical cabeceraComposicionMusical, BindingResult result) 
+	public ResponseEntity<Object> guardar(@RequestBody CabeceraComposicionMusical cabeceraComposicionMusical, BindingResult result) 
 	{ 
 		try { 
 			if (result.hasErrors()) throw new Exception(result.getAllErrors().stream().findFirst().get().getDefaultMessage());  
@@ -127,10 +127,10 @@ public class CabeceraComposicionMusicalController
 
 
 	@GetMapping(path = {"/{id}"})  // url:    /CabeceraComposicionMusical/1  
-	public Object editar(@PathVariable("id") int id) 
+	public ResponseEntity<Object> editar(@PathVariable("id") int id) 
 	{ 
 		try { 
-			return servicio.buscarPorId(id);  
+			return ResponseEntity.ok(servicio.buscarPorId(id));  
 		} 
 		catch (Exception ex) { 
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage()); 
@@ -139,12 +139,12 @@ public class CabeceraComposicionMusicalController
 
 	@PutMapping 
 	@ResponseBody 
-	public ResponseEntity editar(@RequestBody CabeceraComposicionMusical cabeceraComposicionMusical, BindingResult result) 
+	public ResponseEntity<String> editar(@RequestBody CabeceraComposicionMusical cabeceraComposicionMusical, BindingResult result) 
 	{ 
 		try { 
 			if (result.hasErrors()) throw new Exception(result.getAllErrors().stream().findFirst().get().getDefaultMessage());  
 			servicio.actualizar(cabeceraComposicionMusical); 
-			return new ResponseEntity(HttpStatus.OK); 
+			return new ResponseEntity<String>(HttpStatus.OK); 
 		} 
 		catch(IllegalArgumentException ex) { 
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage()); 
@@ -156,11 +156,11 @@ public class CabeceraComposicionMusicalController
 
 
 	@DeleteMapping(path = "/{id}") 
-	public Object borrar(@PathVariable("id") int id) 
+	public ResponseEntity<String> borrar(@PathVariable("id") int id) 
 	{ 
 		try { 
 			servicio.borrar(id); 
-			return new ResponseEntity(HttpStatus.OK); 
+			return new ResponseEntity<String>(HttpStatus.OK); 
 		} 
 		catch(Exception ex) 
 		{ 
@@ -173,6 +173,8 @@ public class CabeceraComposicionMusicalController
 	public ResponseEntity<InputStreamResource> generarPDF(CabeceraComposicionMusical cabeceraComposicionMusical, HttpServletRequest request) 
 	{ 
 		try { 
+			
+			@SuppressWarnings("unchecked")
 			List<CabeceraComposicionMusical> listaCabeceraComposicionMusical = (List<CabeceraComposicionMusical>) this.llenarInformacionDataTable(cabeceraComposicionMusical, request).get("data"); 
 
 			Document documento = new Document(); 

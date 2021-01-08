@@ -47,13 +47,13 @@ public class CabeceraComposicionMusical
 
 	} 
 
-	public CabeceraComposicionMusical(Boolean visible, String autor, String titulo, Usuario usuario, Integer id) 
+	public CabeceraComposicionMusical(Integer id, Usuario usuario, Boolean visible, String autor, String titulo) 
 	{ 
+		this.id = id;
+		this.usuario = usuario; 
 		this.visible = visible; 
 		this.autor = autor; 
 		this.titulo = titulo; 
-		this.usuario = usuario; 
-		this.id = id; 
 	} 
 
 	public Boolean getVisible() { 
@@ -74,9 +74,18 @@ public class CabeceraComposicionMusical
 	public void setTitulo(String titulo) { 
 		this.titulo = titulo; 
 	}  
+	
 	public Usuario getUsuario() { 
 		return this.usuario; 
 	}  
+	
+//	public Usuario getUsuario() 
+//	{ 
+//		Usuario usuario = new Usuario(this.usuario.getId());
+//		usuario.setNombre(this.usuario.getNombre());
+//		return usuario;  // Asi no muestra datos personales del usuario
+//	}  
+	
 	public void setUsuario(Usuario usuario) { 
 		this.usuario = usuario; 
 	}  

@@ -14,9 +14,9 @@ public interface ICabeceraComposicionMusicalService
 
 	public CabeceraComposicionMusical buscarPorId(int id);
 
-	public <T> Object llenarSelect2(
-		Class<T> claseEntidad, String atributoBuscado, String busqueda, int registrosPorPagina, int numeroPagina
-	);
+//	public <T> Object llenarSelect2(
+//		Class<T> claseEntidad, String atributoBuscado, String busqueda, int registrosPorPagina, int numeroPagina
+//	);
 
 	public List<CabeceraComposicionMusical> listar();
 

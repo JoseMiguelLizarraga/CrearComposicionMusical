@@ -60,10 +60,15 @@ public class Usuario
 	private List<UsuarioCargo> listaUsuarioCargo = new ArrayList<>(); 
 
 
-	public Usuario() 
-	{ 
+	public Usuario() { 
 
 	} 
+	
+	
+	public Usuario(Integer id) {
+		this.id = id;
+	}
+
 
 	public Usuario(Integer id, String username, String password, Integer largoPassword, String nombre, String apellidoPaterno, String apellidoMaterno, String rut, String telefono, Boolean activo, Boolean visible) 
 	{ 

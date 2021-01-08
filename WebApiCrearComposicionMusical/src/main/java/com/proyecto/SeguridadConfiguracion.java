@@ -16,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.GetMapping;
-
 import com.proyecto.auth.component.JwtAuthenticationEntryPoint;
 import com.proyecto.auth.component.JwtRequestFilter;
 
@@ -72,25 +70,8 @@ public class SeguridadConfiguracion extends WebSecurityConfigurerAdapter
 				.antMatchers("/api/login").permitAll().antMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // La ruta del login no estara autenticada
 				.antMatchers("/api/**").authenticated()
 				.anyRequest().permitAll()
-			/*
-				.antMatchers(
-					"/login"
-				).permitAll().antMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // La ruta del login no estara autenticada
-				
-				.antMatchers(         
-					"/CabeceraComposicionMusical/llenarDataTable",
-					"/CabeceraComposicionMusical/obtenerListasBuscador",
-					"/CabeceraComposicionMusical/{^[\\d]$}"
-				).permitAll()  
-				
-				.antMatchers(         // Permitir acceso a archivos css, js e imagenes
-					"/css/**", "/js/**", "/images/**"
-				).permitAll()
-
-				//.antMatchers("/miRuta/**").access("hasRole('ROLE_SUPER_ADMIN') or hasRole('ROLE_ADMIN')")
+				//.anyRequest().authenticated()   // Cualquier otra ruta debera ser autenticada
 			
-				.anyRequest().authenticated()   // Cualquier otra ruta debera ser autenticada
-			*/	
 			.and()
 			.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS);

@@ -15,6 +15,8 @@ import { ExcepcionesService } from 'src/app/Servicios/excepciones.service';
 })
 export class CrearEditarComposicionMusicalComponent implements OnInit 
 { 
+	public idUsuarioAutenticado = 0;
+
 	public operacion = "listar"; 
 	public url = ""; 
 	public listaCabeceraComposicionMusical = Array<CabeceraComposicionMusical>();                
@@ -38,6 +40,8 @@ export class CrearEditarComposicionMusicalComponent implements OnInit
 	{  
 		this.url = config.rutaWebApi;
 		this.inicializarArregloNotas();
+
+		this.idUsuarioAutenticado = parseInt(localStorage.getItem(this.config.nombreIdUsuarioAutenticado));
 	} 
 
 	ngOnInit() { 

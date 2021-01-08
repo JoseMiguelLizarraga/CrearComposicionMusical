@@ -44,6 +44,8 @@ export class AppComponent
         (datos:any) => {
 
           this.autorizadoEntrar = true; 
+
+          localStorage.setItem(this.config.nombreIdUsuarioAutenticado, datos.idUsuario);
           localStorage.setItem(this.config.nombreToken, datos.token);
           localStorage.setItem(this.config.nombreTiempoExpiracionToken, datos.expiration);   // Expiracion del token
       

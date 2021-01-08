@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 
+declare const configuracionesProyecto: any;   // Esto trae la funcion configuracionesProyecto que esta en assets
+
 @Injectable({
   providedIn: 'root'
 })
 export class ConfiguracionesProyectoService 
 {
-  rutaWebApi = "http://localhost:8080/api"; 
+  rutaWebApi = ""; 
 
+  nombreIdUsuarioAutenticado = "id_usuario_autenticado_proyecto_composicion_musical";
   nombreToken = "token_proyecto_composicion_musical";
   nombreTiempoExpiracionToken = "expiracion_token_proyecto_composicion_musical";  
 
@@ -14,6 +17,8 @@ export class ConfiguracionesProyectoService
   rutaLoginRealizado = "/composicionMusical/crearEditar";
   rutaLogoutRealizado = "/login";
 
-  constructor() { }
+  constructor() { 
+    this.rutaWebApi = configuracionesProyecto.rutaWebApi;  // Asi la url se puede cambiar al estar publicado
+  }
   
 }

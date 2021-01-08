@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proyecto.model.repository.IParametrosLoginRepository;
+import com.proyecto.model.repository.ParametrosLoginRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -26,7 +26,7 @@ public class JwtTokenUtil
 	private String secret;
 	
 	@Autowired 
-	private IParametrosLoginRepository parametrosLoginRepository;
+	private ParametrosLoginRepository parametrosLoginRepository;
 	
 	//=============================================================>>>>>>
 	

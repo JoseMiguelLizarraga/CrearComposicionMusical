@@ -15,14 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proyecto.model.entity.Usuario;
 import com.proyecto.model.entity.UsuarioCargo;
-import com.proyecto.model.repository.IUsuarioRepository;
+import com.proyecto.model.repository.UsuarioRepository;
 
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService 
 {
 
-	@Autowired private IUsuarioRepository usuarioRepository;  
+	@Autowired private UsuarioRepository usuarioRepository;  
 	
 	@Override
 	@Transactional(readOnly=true)

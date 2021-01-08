@@ -114,11 +114,16 @@
 						<td> {{cabeceraComposicionMusical.autor}} </td> 
 						<td> {{cabeceraComposicionMusical.titulo}} </td> 
 						<td> {{cabeceraComposicionMusical.usuario.apellidoPaterno}} {{cabeceraComposicionMusical.usuario.apellidoMaterno}} {{cabeceraComposicionMusical.usuario.nombre}} </td> 
+						
 						<td> 
-							<a href="javascript:;" (click)="editar(cabeceraComposicionMusical.id)"> Editar </a> 
+							<a href="javascript:;" (click)="editar(cabeceraComposicionMusical.id)"> 
+								{{idUsuarioAutenticado == cabeceraComposicionMusical.usuario.id ? "Editar": "Ver"}}   
+							</a> 
 						</td> 
 						<td> 
-							<a href="javascript:;" (click)="eliminar(cabeceraComposicionMusical.id)"> Eliminar </a> 
+							<a href="javascript:;" 
+							[hidden]="idUsuarioAutenticado != cabeceraComposicionMusical.usuario.id"
+							(click)="eliminar(cabeceraComposicionMusical.id)"> Eliminar </a> 
 						</td> 
 					</tr> 
 				</ng-container> 
@@ -342,7 +347,10 @@
 		<!-- Fin referencias cruzadas de la entidad CabeceraComposicionMusical --> 
 
 		<br/> 
-		<button type="submit" class="btn btn-primary"> Guardar </button> <br/> 
+
+		<div *ngIf="idUsuarioAutenticado == cabeceraComposicionMusical.usuario.id">
+			<button type="submit" class="btn btn-primary"> Guardar </button> <br/>
+		</div>
 
 	</form> 
 

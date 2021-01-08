@@ -1,9 +1,6 @@
 package com.proyecto.controller;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +14,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proyecto.auth.component.JwtTokenUtil;
+import com.proyecto.dto.RetornoJwt;
 import com.proyecto.model.entity.Usuario;
+import com.proyecto.service.IUsuarioService;
 
 
 @RestController
@@ -37,34 +35,9 @@ public class LoginController
 	@Autowired
 	private UserDetailsService jwtInMemoryUserDetailsService;
 	
-	
-	public class RetornoJwt
-	{
-		private String token;
-		private String message;
-		private Date expiration;
-		
-		
-		public String getToken() {
-			return token;
-		}
-		public void setToken(String token) {
-			this.token = token;
-		}
-		public String getMessage() {
-			return message;
-		}
-		public void setMessage(String message) {
-			this.message = message;
-		}
-		public Date getExpiration() {
-			return expiration;
-		}
-		public void setExpiration(Date expiration) {
-			this.expiration = expiration;
-		}
-	}
-	
+	@Autowired
+	private IUsuarioService servicio;
+
 	
 	@RequestMapping(value = "/api/login", method = RequestMethod.POST)
 	public Object generateAuthenticationToken(HttpServletRequest request) throws Exception 
@@ -80,7 +53,7 @@ public class LoginController
 			{
 				// Si los datos enviados por el usuario estan con un contentType de tipo   application/json    de tipo raw (en bruto). Ejemplo:   {"username": "andres", "password": 12345}  
 				
-				Usuario usuario = usuario = new ObjectMapper().readValue(request.getInputStream(), Usuario.class);  // Aca es a la inversa. Se convierte un json a un objeto
+				Usuario usuario = new ObjectMapper().readValue(request.getInputStream(), Usuario.class);  // Aca es a la inversa. Se convierte un json a un objeto
 					
 				username = usuario.getUsername();    // Tendra un valor en caso de que el formato de envio sea   request InputStream (raw)
 				password = usuario.getPassword();    // Tendra un valor en caso de que el formato de envio sea   request InputStream (raw)
@@ -89,8 +62,11 @@ public class LoginController
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 			
 			UserDetails userDetails = jwtInMemoryUserDetailsService.loadUserByUsername(username);
-			String token = jwtTokenUtil.crearToken(userDetails);   
+			String token = jwtTokenUtil.crearToken(userDetails); 
 			
+			Usuario usuario = servicio.findByUsername(username);
+			
+			retorno.setIdUsuario(usuario.getId());
 			retorno.setToken(token);
 			retorno.setMessage( String.format("Hola %s, has iniciado sesión con éxito", userDetails.getUsername()) );
 			retorno.setExpiration( jwtTokenUtil.obtenerFechaExpiracionToken(token) );
@@ -113,27 +89,41 @@ public class LoginController
 	
 	/*
 	// Login
-	$.ajax({
-		url: "http://localhost:8080/api/login",
-		type: "POST",
-		data: JSON.stringify({"username":"admin","password":"123456789"}),
-		contentType: "application/json; charset=utf-8",
-		dataType: "json",
-		success: function (data)
-		{
-			console.log(JSON.stringify(data));
-		}
-	}); 
-	
-	// Listar 
-	$.ajax({
-		headers: {"Authorization": "Bearer " + token},
-		url: "http://localhost:8080/api/MaestroRegion",
-		type: "GET",
-		success: function (data)
-		{
-			console.log(JSON.stringify(data));
+
+	fetch("http://localhost:8080/api/login", {
+		method: "POST",
+		headers: {"Accept": "application/json", "Content-Type": "application/json"},
+		body: JSON.stringify({"username": "admin", "password": "123456789"})
+	})
+	.then(response => 
+	{
+		if(response.ok) {
+			response.json().then(data => {
+				console.log(JSON.stringify(data)); 
+			});
+		} 
+		else {
+			response.json().then(data => alert(data.message));
 		}
 	});
 	*/
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
