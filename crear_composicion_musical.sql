@@ -86,6 +86,8 @@ insert into cargo(id, authority, descripcion, activo, visible) values(1, 'ROLE_S
 
 -- ===================================================================================================================>>>>>>
 -- Creo un usuario Administrador y su(s) cargo(s)
+-- admin 
+-- 123456789
 
 INSERT INTO usuario(id, username, password, largo_password, nombre, apellido_paterno, apellido_materno, rut, telefono, activo, visible) 
 VALUES (1, 'admin', '$2a$11$oTiVF3rePm8YqI//.8N4Bup6P3B3509KbN6imVrfvTKHUgy2VZgJG', 4, 'admin', null, null, '11.111.111-1', null, 1, 0);
